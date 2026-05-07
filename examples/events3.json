@@ -1,0 +1,8 @@
+[
+  {
+    "node": "A",
+    "type": "NODE_UNREACHABLE",
+    "target": "C",
+    "timestamp": 1777877450000
+  }
+]

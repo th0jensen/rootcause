@@ -1,0 +1,15 @@
+[
+  {
+    "node": "B",
+    "type": "LINK_DOWN",
+    "target": "C",
+    "timestamp": 1777877448000
+  },
+  {
+    "node": "A",
+    "type": "NODE_UNREACHABLE",
+    "target": "F",
+    "timestamp": 1777877450000
+  },
+  { "node": "D", "type": "DEGRADED", "target": "F", "timestamp": 1777877451000 }
+]
