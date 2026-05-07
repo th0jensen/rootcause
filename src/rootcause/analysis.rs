@@ -65,7 +65,7 @@ impl RootCauseTracker {
     /// evidence ([`EventEffect`]) at the end of the evidence vector. This
     /// function assumes that events are processed in chronological order,
     /// presenting the oldest evidence at the beginning of the vector.
-    pub fn record(&mut self, se: ScoredEvidence) {
+    pub fn record(&mut self, se: &ScoredEvidence) {
         self.scores
             .entry(se.candidate.clone())
             .and_modify(|s| *s += se.delta)
@@ -74,7 +74,7 @@ impl RootCauseTracker {
         self.evidence
             .entry(se.candidate.clone())
             .or_insert_with(Vec::new)
-            .push(se.evidence);
+            .push(se.evidence.clone());
     }
 }
 

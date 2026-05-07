@@ -154,7 +154,7 @@ pub enum EventEffect {
 impl EventEffect {
     /// Evaluate this [`EventEffect`] as a potential root cause candidate for
     /// [`crate::RootCauseTracker`].
-    pub fn candidate(&self) -> Option<ScoredEvidence> {
+    pub fn candidate(&self) -> Option<Vec<ScoredEvidence>> {
         match self {
             Self::Ignored => None,
             Self::TopologyChanged { event } => self.on_topology(event),
@@ -163,11 +163,15 @@ impl EventEffect {
     }
 
     /// Score an [`EventType::LinkDown`] topology change as evidence against
-    /// the affected [`Link`].
-    fn on_topology(&self, event: &Event) -> Option<ScoredEvidence> {
+    /// the affected [`Link`] and target [`Node`].
+    fn on_topology(&self, event: &Event) -> Option<Vec<ScoredEvidence>> {
         if matches!(event.event_type, EventType::LinkDown) {
             let l = Link::new(event.node.clone(), event.target.clone());
-            Some(ScoredEvidence::new(Candidate::Link(l), self.clone(), 1))
+            let t = event.target.clone();
+            Some(vec![
+                ScoredEvidence::new(Candidate::Link(l), self.clone(), 1),
+                ScoredEvidence::new(Candidate::Node(t), self.clone(), 1),
+            ])
         } else {
             None
         }
@@ -177,10 +181,14 @@ impl EventEffect {
     /// the target [`Node`]. A higher delta is assigned when the topology
     /// confirms the node is still reachable, suggesting the report is
     /// unexpected and more significant.
-    fn on_observation(&self, event: &Event, reachable: &bool) -> Option<ScoredEvidence> {
+    fn on_observation(&self, event: &Event, reachable: &bool) -> Option<Vec<ScoredEvidence>> {
         let t = event.target.clone();
         let delta = if *reachable { 2 } else { 1 };
-        Some(ScoredEvidence::new(Candidate::Node(t), self.clone(), delta))
+        Some(vec![ScoredEvidence::new(
+            Candidate::Node(t),
+            self.clone(),
+            delta,
+        )])
     }
 }
 

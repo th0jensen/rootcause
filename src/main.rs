@@ -38,7 +38,7 @@ fn main() -> anyhow::Result<()> {
         let effect = network.apply_event(&event);
         let candidate = effect.candidate();
         if let Some(candidate) = candidate {
-            tracker.record(candidate);
+            candidate.iter().for_each(|c| tracker.record(c));
         }
     }
 
