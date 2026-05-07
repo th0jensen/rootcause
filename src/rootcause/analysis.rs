@@ -10,6 +10,7 @@ use crate::rootcause::{
     types::{Link, Node},
 };
 
+/// Represents a root cause candidate.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum Candidate {
     Node(Node),
@@ -25,6 +26,8 @@ impl Display for Candidate {
     }
 }
 
+/// Represents a unit consisting of a root cause [`Candidate`] alongside the
+/// evidence ([`EventEffect`]) and scored delta from the baseline.
 pub struct ScoredEvidence {
     pub candidate: Candidate,
     pub evidence: EventEffect,
@@ -41,6 +44,8 @@ impl ScoredEvidence {
     }
 }
 
+/// Represents a tracker that holds all the root cause [`Candidate`]s for
+/// comparison and analysis.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RootCauseTracker {
     scores: HashMap<Candidate, u16>,
@@ -55,6 +60,11 @@ impl RootCauseTracker {
         }
     }
 
+    /// Puts the given [`ScoredEvidence`] into the RootCauseTracker as a
+    /// record. Adds the delta to the baseline and inserts the provided
+    /// evidence ([`EventEffect`]) at the end of the evidence vector. This
+    /// function assumes that events are processed in chronological order,
+    /// presenting the oldest evidence at the beginning of the vector.
     pub fn record(&mut self, se: ScoredEvidence) {
         self.scores
             .entry(se.candidate.clone())
@@ -68,6 +78,8 @@ impl RootCauseTracker {
     }
 }
 
+/// Represents any likely root cause identified in a [`crate::Network`]
+/// derived from scored evidence across observed [`crate::Event`]s.
 #[derive(Debug)]
 pub struct RootCause {
     candidate: Candidate,
@@ -86,6 +98,10 @@ impl RootCause {
             score,
             evidence,
         })
+    }
+
+    pub fn _get_causes(_tracker: RootCauseTracker) -> Option<Vec<Self>> {
+        todo!()
     }
 }
 

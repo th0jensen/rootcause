@@ -10,13 +10,15 @@ use crate::rootcause::{
     types::{Event, EventType, Graph, Link, Node},
 };
 
+/// Represents a Network consisting of Nodes as a [`HashMap`]. Links for any
+/// given node is represented as a [`HashSet`].
 #[derive(Debug)]
 pub struct Network {
     pub graph: HashMap<Node, HashSet<Node>>,
 }
 
 impl Network {
-    /// Create a Network from a given Graph
+    /// Create a Network from a given [`Graph`].
     pub fn new(graph: Graph) -> Self {
         let mut network: Self = Self {
             graph: HashMap::new(),
@@ -33,12 +35,12 @@ impl Network {
         network
     }
 
-    /// Add a node to the Network
+    /// Add a [`Node`] to the Network.
     fn add_node(&mut self, node: &Node) {
         self.graph.entry(node.clone()).or_insert_with(HashSet::new);
     }
 
-    /// Connect two Nodes inside the Network
+    /// Connect a [`Link`] inside of the Network.
     fn connect(&mut self, a: &Node, b: &Node) {
         self.graph
             .entry(a.clone())
@@ -51,7 +53,7 @@ impl Network {
             .insert(a.clone());
     }
 
-    /// Disconnect two Nodes from the Network
+    /// Disconnect a [`Link`] from the Network.
     fn disconnect(&mut self, a: &Node, b: &Node) {
         if let Some(neighbors) = self.graph.get_mut(a) {
             neighbors.remove(b);
@@ -61,12 +63,12 @@ impl Network {
         }
     }
 
-    /// Check if two Nodes are neighbors
+    /// Check if two Nodes are neighbors.
     fn neighbors(&self, node: &Node) -> Option<&HashSet<Node>> {
         self.graph.get(node)
     }
 
-    /// Apply an Event to the Network
+    /// Apply an [`Event`] to the Network.
     pub fn apply_event(&mut self, event: &Event) -> EventEffect {
         match event.event_type {
             EventType::LinkDown => {
@@ -92,13 +94,14 @@ impl Network {
         }
     }
 
-    /// Check if a Node can reach another Node
+    /// Check if a [`Node`] can reach another [`Node`].
     pub fn can_reach(&self, node: &Node, target: &Node) -> bool {
         let mut visited = HashSet::new();
         self.traverse(node, target, &mut visited)
     }
 
-    /// Recursively traverse the Network using DFS until target Node is visited, or not
+    /// Recursively traverse the Network using depth-first search, returning
+    /// `true` if the target [`Node`] is reachable from the given [`Node`].
     fn traverse(&self, node: &Node, target: &Node, visited: &mut HashSet<Node>) -> bool {
         if node == target {
             return true;
@@ -120,6 +123,7 @@ impl Network {
     }
 }
 
+/// Represents the effect of an [`Event`] on a [`Network`].
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum EventEffect {
     TopologyChanged { event: Event },
@@ -128,6 +132,8 @@ pub enum EventEffect {
 }
 
 impl EventEffect {
+    /// Evaluate this [`EventEffect`] as a potential root cause candidate for
+    /// [`crate::RootCauseTracker`].
     pub fn candidate(&self) -> Option<ScoredEvidence> {
         match self {
             Self::Ignored => None,
@@ -136,6 +142,8 @@ impl EventEffect {
         }
     }
 
+    /// Score an [`EventType::LinkDown`] topology change as evidence against
+    /// the affected [`Link`].
     fn on_topology(&self, event: &Event) -> Option<ScoredEvidence> {
         if matches!(event.event_type, EventType::LinkDown) {
             let l = Link::new(event.node.clone(), event.target.clone());
@@ -145,6 +153,10 @@ impl EventEffect {
         }
     }
 
+    /// Score an [`EventType::NodeUnreachable`] observation as evidence against
+    /// the target [`Node`]. A higher delta is assigned when the topology
+    /// confirms the node is still reachable, suggesting the report is
+    /// unexpected and more significant.
     fn on_observation(&self, event: &Event, reachable: &bool) -> Option<ScoredEvidence> {
         let t = event.target.clone();
         let delta = if *reachable { 2 } else { 1 };
