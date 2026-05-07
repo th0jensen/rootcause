@@ -25,7 +25,7 @@ impl Graph {
     }
 }
 
-/// Represents an Event that has occured in the [`crate::Network`].
+/// Represents an Event that has occurred in the [`crate::Network`].
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub struct Event {
     pub node: Node,
@@ -96,8 +96,8 @@ impl Display for Node {
 pub struct Link(pub Node, pub Node);
 
 impl Link {
-    /// Sorts entries in Link alphabetically as to not create duplicate entries
-    /// in the [`crate::Network`].
+    /// Sorts entries in Link alphabetically as to not create duplicate
+    /// candidates for the [`crate::Network`].
     pub fn new(a: Node, b: Node) -> Self {
         if a.0 <= b.0 { Self(a, b) } else { Self(b, a) }
     }
