@@ -82,7 +82,7 @@ where
 }
 
 /// Represents any given Node in the [`crate::Network`].
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Deserialize)]
 pub struct Node(pub String);
 
 impl Display for Node {
@@ -92,7 +92,7 @@ impl Display for Node {
 }
 
 /// Represents a bidirectional connection between two Nodes.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Deserialize)]
 pub struct Link(pub Node, pub Node);
 
 impl Link {

@@ -11,7 +11,7 @@ use crate::rootcause::{
 };
 
 /// Represents a root cause candidate.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Deserialize)]
 pub enum Candidate {
     Node(Node),
     Link(Link),
@@ -82,26 +82,32 @@ impl RootCauseTracker {
 /// derived from scored evidence across observed [`crate::Event`]s.
 #[derive(Debug)]
 pub struct RootCause {
-    candidate: Candidate,
-    score: u16,
-    evidence: Vec<EventEffect>,
+    pub candidate: Candidate,
+    pub score: f32,
+    pub evidence: Vec<EventEffect>,
 }
 
 impl RootCause {
-    pub fn get_cause(tracker: RootCauseTracker) -> Option<Self> {
+    pub fn get_causes(tracker: RootCauseTracker) -> Option<Vec<Self>> {
         let RootCauseTracker { scores, evidence } = tracker;
-        let (candidate, score) = scores.into_iter().max_by_key(|(_, score)| *score)?;
-        let evidence = evidence.get(&candidate)?.clone();
+        let mut scores = scores.into_iter().collect::<Vec<_>>();
+        scores.sort_by(|a, b| b.1.cmp(&a.1));
 
-        Some(Self {
-            candidate,
-            score,
-            evidence,
-        })
-    }
+        let mut causes = Vec::new();
+        let total: f32 = scores.iter().map(|(_, s)| *s as f32).sum();
+        for score in scores {
+            let (candidate, score) = score;
+            let score = score as f32 / total;
+            let evidence = evidence.get(&candidate)?.clone();
 
-    pub fn _get_causes(_tracker: RootCauseTracker) -> Option<Vec<Self>> {
-        todo!()
+            causes.push(Self {
+                candidate,
+                score,
+                evidence,
+            })
+        }
+
+        Some(causes)
     }
 }
 
@@ -113,7 +119,8 @@ impl Display for RootCause {
             evidence,
         } = self;
 
-        writeln!(f, "Score: {score}")?;
+        let score = score * 100 as f32;
+        writeln!(f, "Confidence: {score}%")?;
         writeln!(f, "Candidate: {candidate}")?;
         writeln!(f, "Evidence:")?;
 

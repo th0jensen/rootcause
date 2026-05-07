@@ -12,7 +12,7 @@ use crate::rootcause::{
 
 /// Represents a Network consisting of Nodes as a [`HashMap`]. Links for any
 /// given node is represented as a [`HashSet`].
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Network {
     pub graph: HashMap<Node, HashSet<Node>>,
 }
@@ -123,6 +123,26 @@ impl Network {
     }
 }
 
+impl Display for Network {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut nodes = self.graph.iter().collect::<Vec<_>>();
+        nodes.sort_by(|a, b| a.0.cmp(b.0));
+
+        for node in nodes {
+            let (node, neighbors) = node;
+            let mut neighbors = neighbors
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>();
+
+            neighbors.sort_by(|a, b| a.cmp(b));
+            writeln!(f, "{node} -> [{}]", neighbors.join(", "))?;
+        }
+
+        Ok(())
+    }
+}
+
 /// Represents the effect of an [`Event`] on a [`Network`].
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
 pub enum EventEffect {
@@ -169,7 +189,7 @@ impl Display for EventEffect {
         match self {
             EventEffect::TopologyChanged { event } => write!(f, "{event}"),
             EventEffect::Observation { event, reachable } => {
-                write!(f, "{event}\n  Topology disagreed: {reachable}")
+                write!(f, "{event}\n  Topology still reachable: {reachable}")
             }
             EventEffect::Ignored => write!(f, ""),
         }
