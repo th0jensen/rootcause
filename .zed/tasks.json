@@ -1,7 +1,20 @@
 [
   {
+    "label": "build release",
+    "command": "cargo build --release",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "never",
+    "reveal_target": "dock",
+    "hide": "on_success",
+    "shell": "system",
+    "show_summary": false,
+    "show_command": false,
+    "save": "all",
+  },
+  {
     "label": "run example1",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input1.json -e ./examples/events1.json",
+    "command": "./target/release/rootcause -i ./examples/input1.json -e ./examples/events1.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
@@ -14,7 +27,7 @@
   },
   {
     "label": "run example2",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input2.json -e ./examples/events2.json",
+    "command": "./target/release/rootcause -i ./examples/input2.json -e ./examples/events2.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
@@ -27,7 +40,7 @@
   },
   {
     "label": "run example3",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input3.json -e ./examples/events3.json",
+    "command": "./target/release/rootcause -i ./examples/input3.json -e ./examples/events3.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
@@ -40,7 +53,7 @@
   },
   {
     "label": "run example4",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input4.json -e ./examples/events4.json",
+    "command": "./target/release/rootcause -i ./examples/input4.json -e ./examples/events4.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
@@ -53,7 +66,7 @@
   },
   {
     "label": "run example5",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input5.json -e ./examples/events5.json",
+    "command": "./target/release/rootcause -i ./examples/input5.json -e ./examples/events5.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
@@ -66,7 +79,7 @@
   },
   {
     "label": "run example6",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input6.json -e ./examples/events6.json",
+    "command": "./target/release/rootcause -i ./examples/input6.json -e ./examples/events6.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
@@ -79,7 +92,7 @@
   },
   {
     "label": "run example7",
-    "command": "cargo build --release && ./target/release/rootcause -i ./examples/input7.json -e ./examples/events7.json",
+    "command": "./target/release/rootcause -i ./examples/input7.json -e ./examples/events7.json",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
