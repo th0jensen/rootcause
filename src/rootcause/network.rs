@@ -62,7 +62,7 @@ impl Network {
     }
 
     /// Check if two Nodes are neighbors
-    fn _neighbors(&self, node: &Node) -> Option<&HashSet<Node>> {
+    fn neighbors(&self, node: &Node) -> Option<&HashSet<Node>> {
         self.graph.get(node)
     }
 
@@ -108,7 +108,7 @@ impl Network {
             return false;
         }
 
-        if let Some(neighbors) = self.graph.get(node) {
+        if let Some(neighbors) = self.neighbors(node) {
             for neighbor in neighbors {
                 if self.traverse(neighbor, target, visited) {
                     return true;
