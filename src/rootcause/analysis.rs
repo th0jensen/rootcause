@@ -119,8 +119,8 @@ impl Display for RootCause {
             evidence,
         } = self;
 
-        let score = score * 100 as f32;
-        writeln!(f, "Confidence: {score}%")?;
+        let score = score * 100.0;
+        writeln!(f, "Confidence: {score:.2}%")?;
         writeln!(f, "Candidate: {candidate}")?;
         writeln!(f, "Evidence:")?;
 
