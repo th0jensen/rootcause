@@ -2,6 +2,16 @@
 
 This is my submission for solving "Root cause analysis in a dynamic IP network"
 
+## Approach
+
+Events are processed chronologically against a live topology model of the network.
+
+`LINK_DOWN` events mutate the graph and score the affected link and node as candidates for the root cause.
+
+`NODE_UNREACHABLE` events are checked against the current topology, and if the topology agrees then it's categorised as a downstream symptom of the root cause.
+
+Candidates are ranked by accumulated score and split into most likely causes, less likely causes, and observed downstream symptoms.
+
 ## Building
 
 ### Requirements
