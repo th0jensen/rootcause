@@ -16,23 +16,6 @@ pub struct Network {
 }
 
 impl Network {
-    /// Create a Network from a given [`Graph`].
-    pub fn new(graph: Graph) -> Self {
-        let mut network: Self = Self {
-            graph: HashMap::new(),
-        };
-
-        for node in &graph.nodes {
-            network.add_node(node)
-        }
-
-        for Link(a, b) in &graph.links {
-            network.connect(a, b);
-        }
-
-        network
-    }
-
     /// Add a [`Node`] to the Network.
     fn add_node(&mut self, node: &Node) {
         self.graph.entry(node.clone()).or_insert_with(HashSet::new);
@@ -118,6 +101,25 @@ impl Network {
         }
 
         false
+    }
+}
+
+impl From<Graph> for Network {
+    /// Create a Network from a given [`Graph`].
+    fn from(graph: Graph) -> Self {
+        let mut network: Self = Self {
+            graph: HashMap::new(),
+        };
+
+        for node in &graph.nodes {
+            network.add_node(node)
+        }
+
+        for Link(a, b) in &graph.links {
+            network.connect(a, b);
+        }
+
+        network
     }
 }
 
