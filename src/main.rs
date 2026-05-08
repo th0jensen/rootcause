@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let graph = Graph::parse_file(cli.input)?;
-    let mut network = Network::new(graph);
+    let mut network = Network::from(graph);
     let initial_network = network.clone();
 
     let mut events = Event::parse_file(cli.event)?;
