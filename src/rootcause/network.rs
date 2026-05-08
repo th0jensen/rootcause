@@ -10,8 +10,8 @@ use crate::rootcause::{
     types::{Event, EventType, Graph, Link, Node},
 };
 
-/// Represents a Network consisting of Nodes as a [`HashMap`]. Links for any
-/// given node is represented as a [`HashSet`].
+/// Represents a Network consisting of [`Node`]s as a [`HashMap`]. [`Link`]s
+/// for any given node is represented as a [`HashSet`].
 #[derive(Debug, Clone)]
 pub struct Network {
     pub graph: HashMap<Node, HashSet<Node>>,
