@@ -3,10 +3,8 @@ use std::{
     fmt::{self, Display},
 };
 
-use serde::Deserialize;
-
 use crate::{
-    analysis::{Candidate, ScoredEvidence},
+    analysis::EventEffect,
     types::{Event, EventType, Graph, Link, Node},
 };
 
@@ -140,65 +138,5 @@ impl Display for Network {
         }
 
         Ok(())
-    }
-}
-
-/// Represents the effect of an [`Event`] on a [`Network`].
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize)]
-pub enum EventEffect {
-    TopologyChanged { event: Event },
-    Observation { event: Event, reachable: bool },
-    Ignored,
-}
-
-impl EventEffect {
-    /// Evaluate this [`EventEffect`] as a potential root cause candidate for
-    /// [`crate::RootCauseTracker`].
-    pub fn candidate(&self) -> Option<Vec<ScoredEvidence>> {
-        match self {
-            Self::Ignored => None,
-            Self::TopologyChanged { event } => self.on_topology(event),
-            Self::Observation { event, reachable } => self.on_observation(event, reachable),
-        }
-    }
-
-    /// Score an [`EventType::LinkDown`] topology change as evidence against
-    /// the affected [`Link`] and target [`Node`].
-    fn on_topology(&self, event: &Event) -> Option<Vec<ScoredEvidence>> {
-        if matches!(event.event_type, EventType::LinkDown) {
-            let t = event.target.clone();
-            let l = Link::new(event.node.clone(), t.clone());
-            Some(vec![
-                ScoredEvidence::new(Candidate::Link(l), self.clone(), 1),
-                ScoredEvidence::new(Candidate::Node(t), self.clone(), 1),
-            ])
-        } else {
-            None
-        }
-    }
-
-    /// Score an [`EventType::NodeUnreachable`] observation as evidence against
-    /// the target [`Node`]. A higher delta is assigned when the topology
-    /// confirms the node is still reachable, suggesting the report is
-    /// unexpected and more significant.
-    fn on_observation(&self, event: &Event, reachable: &bool) -> Option<Vec<ScoredEvidence>> {
-        let delta = if *reachable { 1 } else { 0 };
-        Some(vec![ScoredEvidence::new(
-            Candidate::Node(event.target.clone()),
-            self.clone(),
-            delta,
-        )])
-    }
-}
-
-impl Display for EventEffect {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            EventEffect::TopologyChanged { event } => write!(f, "{event}"),
-            EventEffect::Observation { event, reachable } => {
-                write!(f, "{event}\n  Topology still reachable: {reachable}")
-            }
-            EventEffect::Ignored => write!(f, ""),
-        }
     }
 }

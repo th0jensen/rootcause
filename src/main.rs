@@ -2,7 +2,7 @@ use clap::Parser;
 use std::path::PathBuf;
 
 use crate::{
-    analysis::{RootCause, RootCauseTracker},
+    analysis::RootCauseTracker,
     network::Network,
     types::{Event, Graph},
 };
@@ -30,47 +30,27 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let graph = Graph::parse_file(cli.input)?;
-    let mut events = Event::parse_file(cli.event)?;
     let mut network = Network::new(graph);
     let initial_network = network.clone();
+
+    let mut events = Event::parse_file(cli.event)?;
     events.sort_by_key(|e| e.timestamp);
 
     let mut tracker = RootCauseTracker::new();
     for event in events {
         let effect = network.apply_event(&event);
         let candidate = effect.candidate();
-        if let Some(candidate) = candidate {
+        if let Some(candidate) = candidate
+            && !candidate.is_empty()
+        {
             candidate.iter().for_each(|c| tracker.record(c));
         }
     }
 
     print_network_comparison(&initial_network, &network);
 
-    let causes = RootCause::get_causes(tracker);
-
-    let top_score = causes
-        .first()
-        .map(|c| c.score)
-        .ok_or_else(|| anyhow::anyhow!("no causes found for network"))?;
-
-    let mut most_likely = causes
-        .iter()
-        .filter(|c| c.score == top_score)
-        .collect::<Vec<_>>();
-
-    print_results("Most", &mut most_likely);
-
-    let mut less_likely = causes
-        .iter()
-        .filter(|c| c.score != top_score && c.score > 0.0)
-        .collect::<Vec<_>>();
-
-    print_results("Less", &mut less_likely);
-
-    let mut symptoms = causes.iter().filter(|c| c.score == 0.0).collect::<Vec<_>>();
-    print_results("Symptoms", &mut symptoms);
-
-    Ok(())
+    let causes = tracker.get_causes()?;
+    Ok(println!("{causes}"))
 }
 
 fn print_network_comparison(left: &Network, right: &Network) {
@@ -104,21 +84,4 @@ fn print_network_comparison(left: &Network, right: &Network) {
         println!("{:<width$} | {}", l, r, width = width);
     }
     println!("")
-}
-
-fn print_results(label: &str, causes: &mut [&RootCause]) {
-    if causes.is_empty() {
-        return;
-    }
-
-    if label == "Symptoms" {
-        println!("Observed downstream symptoms:")
-    } else {
-        let plural = if causes.len() > 1 { "s" } else { "" };
-        println!("{label} likely root cause{plural}:\n");
-    }
-
-    for cause in causes {
-        println!("{cause}");
-    }
 }
