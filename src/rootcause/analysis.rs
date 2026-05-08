@@ -120,7 +120,9 @@ impl Display for RootCause {
         } = self;
 
         let score = score * 100.0;
-        writeln!(f, "Confidence: {score:.2}%")?;
+        if score > 0.0 {
+            writeln!(f, "Confidence: {score:.2}%")?;
+        }
         writeln!(f, "Candidate: {candidate}")?;
         writeln!(f, "Evidence:")?;
 

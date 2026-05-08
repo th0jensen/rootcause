@@ -52,17 +52,20 @@ fn main() -> anyhow::Result<()> {
             .filter(|c| c.score == top_score)
             .collect::<Vec<_>>();
 
-        print_causes("Most", &mut most_likely);
+        print_results("Most", &mut most_likely);
 
         let mut less_likely = causes
             .iter()
-            .filter(|c| c.score != top_score)
+            .filter(|c| c.score != top_score && c.score > 0.0)
             .collect::<Vec<_>>();
 
-        print_causes("Less", &mut less_likely);
+        print_results("Less", &mut less_likely);
+
+        let mut symptoms = causes.iter().filter(|c| c.score == 0.0).collect::<Vec<_>>();
+        print_results("Symptoms", &mut symptoms)
     } else {
         println!("no plausible causes found from events")
-    }
+    };
 
     Ok(())
 }
@@ -96,13 +99,17 @@ fn print_network_comparison(left: &Network, right: &Network) {
     println!("")
 }
 
-fn print_causes(label: &str, causes: &mut [&RootCause]) {
+fn print_results(label: &str, causes: &mut [&RootCause]) {
     if causes.is_empty() {
         return;
     }
 
-    let plural = if causes.len() > 1 { "s" } else { "" };
-    println!("{label} likely root cause{plural}:\n");
+    if label == "Symptoms" {
+        println!("Observed downstream symptoms:")
+    } else {
+        let plural = if causes.len() > 1 { "s" } else { "" };
+        println!("{label} likely root cause{plural}:\n");
+    }
 
     causes.sort_by(|a, b| a.candidate.cmp(&b.candidate));
 
