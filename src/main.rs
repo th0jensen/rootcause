@@ -47,19 +47,19 @@ fn main() -> anyhow::Result<()> {
     if let Some(causes) = RootCause::get_causes(tracker) {
         let top_score = causes[0].score;
 
-        let most_likely = causes
+        let mut most_likely = causes
             .iter()
             .filter(|c| c.score == top_score)
             .collect::<Vec<_>>();
 
-        print_causes("Most", &most_likely);
+        print_causes("Most", &mut most_likely);
 
-        let less_likely = causes
+        let mut less_likely = causes
             .iter()
             .filter(|c| c.score != top_score)
             .collect::<Vec<_>>();
 
-        print_causes("Less", &less_likely);
+        print_causes("Less", &mut less_likely);
     } else {
         println!("no plausible causes found from events")
     }
@@ -96,13 +96,15 @@ fn print_network_comparison(left: &Network, right: &Network) {
     println!("")
 }
 
-fn print_causes(label: &str, causes: &[&RootCause]) {
+fn print_causes(label: &str, causes: &mut [&RootCause]) {
     if causes.is_empty() {
         return;
     }
 
     let plural = if causes.len() > 1 { "s" } else { "" };
     println!("{label} likely root cause{plural}:\n");
+
+    causes.sort_by(|a, b| a.candidate.cmp(&b.candidate));
 
     for cause in causes {
         println!("{cause}");
