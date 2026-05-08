@@ -21,6 +21,12 @@ The program expects input files matching the spec. There's a collection of examp
 ./target/release/rootcause -i ./examples/input1.json -e ./examples/events1.json
 ```
 
+Optionally, without building first:
+
+```sh
+cargo run -- -i ./examples/input1.json -e ./examples/events1.json
+```
+
 To view usage in the terminal:
 
 ```sh
@@ -39,7 +45,7 @@ rootcause/
     └── analysis.rs            # Score aggregation and analysis
 ```
 
-## Libraries used
+## Libraries/crates used
 
 - `serde` and `serde_json`: JSON deserialization
 - `clap`: CLI argument parsing
