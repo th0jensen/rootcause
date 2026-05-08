@@ -88,7 +88,7 @@ pub struct RootCause {
 }
 
 impl RootCause {
-    pub fn get_causes(tracker: RootCauseTracker) -> Option<Vec<Self>> {
+    pub fn get_causes(tracker: RootCauseTracker) -> Vec<Self> {
         let RootCauseTracker { scores, evidence } = tracker;
         let mut scores = scores.into_iter().collect::<Vec<_>>();
         scores.sort_by(|a, b| b.1.cmp(&a.1));
@@ -98,16 +98,18 @@ impl RootCause {
         for score in scores {
             let (candidate, score) = score;
             let score = score as f32 / total;
-            let evidence = evidence.get(&candidate)?.clone();
-
-            causes.push(Self {
-                candidate,
-                score,
-                evidence,
-            })
+            let evidence = evidence.get(&candidate).clone();
+            match evidence {
+                None => continue,
+                Some(e) => causes.push(Self {
+                    candidate,
+                    score,
+                    evidence: e.clone(),
+                }),
+            }
         }
 
-        Some(causes)
+        causes
     }
 }
 

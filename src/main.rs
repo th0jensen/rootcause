@@ -42,30 +42,33 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    print_network_comparison(&initial_network, &network);
+    if network.graph.len() != 0 {
+        print_network_comparison(&initial_network, &network);
+    }
 
-    if let Some(causes) = RootCause::get_causes(tracker) {
-        let top_score = causes[0].score;
+    let causes = RootCause::get_causes(tracker);
 
-        let mut most_likely = causes
-            .iter()
-            .filter(|c| c.score == top_score)
-            .collect::<Vec<_>>();
+    let top_score = causes
+        .first()
+        .map(|c| c.score)
+        .ok_or_else(|| anyhow::anyhow!("no causes found for network"))?;
 
-        print_results("Most", &mut most_likely);
+    let mut most_likely = causes
+        .iter()
+        .filter(|c| c.score == top_score)
+        .collect::<Vec<_>>();
 
-        let mut less_likely = causes
-            .iter()
-            .filter(|c| c.score != top_score && c.score > 0.0)
-            .collect::<Vec<_>>();
+    print_results("Most", &mut most_likely);
 
-        print_results("Less", &mut less_likely);
+    let mut less_likely = causes
+        .iter()
+        .filter(|c| c.score != top_score && c.score > 0.0)
+        .collect::<Vec<_>>();
 
-        let mut symptoms = causes.iter().filter(|c| c.score == 0.0).collect::<Vec<_>>();
-        print_results("Symptoms", &mut symptoms)
-    } else {
-        println!("no plausible causes found from events")
-    };
+    print_results("Less", &mut less_likely);
+
+    let mut symptoms = causes.iter().filter(|c| c.score == 0.0).collect::<Vec<_>>();
+    print_results("Symptoms", &mut symptoms);
 
     Ok(())
 }
