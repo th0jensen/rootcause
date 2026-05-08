@@ -166,8 +166,8 @@ impl EventEffect {
     /// the affected [`Link`] and target [`Node`].
     fn on_topology(&self, event: &Event) -> Option<Vec<ScoredEvidence>> {
         if matches!(event.event_type, EventType::LinkDown) {
-            let l = Link::new(event.node.clone(), event.target.clone());
             let t = event.target.clone();
+            let l = Link::new(event.node.clone(), t.clone());
             Some(vec![
                 ScoredEvidence::new(Candidate::Link(l), self.clone(), 1),
                 ScoredEvidence::new(Candidate::Node(t), self.clone(), 1),
@@ -182,10 +182,9 @@ impl EventEffect {
     /// confirms the node is still reachable, suggesting the report is
     /// unexpected and more significant.
     fn on_observation(&self, event: &Event, reachable: &bool) -> Option<Vec<ScoredEvidence>> {
-        let t = event.target.clone();
-        let delta = if *reachable { 2 } else { 1 };
+        let delta = if *reachable { 1 } else { 0 };
         Some(vec![ScoredEvidence::new(
-            Candidate::Node(t),
+            Candidate::Node(event.target.clone()),
             self.clone(),
             delta,
         )])
