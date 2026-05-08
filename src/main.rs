@@ -42,9 +42,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    if network.graph.len() != 0 {
-        print_network_comparison(&initial_network, &network);
-    }
+    print_network_comparison(&initial_network, &network);
 
     let causes = RootCause::get_causes(tracker);
 
@@ -74,6 +72,10 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn print_network_comparison(left: &Network, right: &Network) {
+    if left.graph.is_empty() || right.graph.is_empty() {
+        return;
+    }
+
     let left = format!("{left}")
         .lines()
         .map(str::to_string)
@@ -113,8 +115,6 @@ fn print_results(label: &str, causes: &mut [&RootCause]) {
         let plural = if causes.len() > 1 { "s" } else { "" };
         println!("{label} likely root cause{plural}:\n");
     }
-
-    causes.sort_by(|a, b| a.candidate.cmp(&b.candidate));
 
     for cause in causes {
         println!("{cause}");
