@@ -1,13 +1,15 @@
 use clap::Parser;
 use std::path::PathBuf;
 
-use crate::rootcause::{
+use crate::{
     analysis::{RootCause, RootCauseTracker},
     network::Network,
     types::{Event, Graph},
 };
 
-mod rootcause;
+mod analysis;
+mod network;
+mod types;
 
 #[derive(Parser)]
 #[command(

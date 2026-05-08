@@ -5,7 +5,7 @@ use std::{
 
 use serde::Deserialize;
 
-use crate::rootcause::{
+use crate::{
     analysis::{Candidate, ScoredEvidence},
     types::{Event, EventType, Graph, Link, Node},
 };

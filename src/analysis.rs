@@ -5,7 +5,7 @@ use std::{
 
 use serde::Deserialize;
 
-use crate::rootcause::{
+use crate::{
     network::EventEffect,
     types::{Link, Node},
 };
