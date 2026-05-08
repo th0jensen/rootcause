@@ -39,11 +39,11 @@ fn main() -> anyhow::Result<()> {
     let mut tracker = RootCauseTracker::new();
     for event in events {
         let effect = network.apply_event(&event);
-        let candidates = effect.candidate();
+        let candidates = effect.evaluate();
         if let Some(candidates) = candidates
             && !candidates.is_empty()
         {
-            candidates.iter().for_each(|c| tracker.record(c));
+            candidates.iter().for_each(|se| tracker.record(se));
         }
     }
 

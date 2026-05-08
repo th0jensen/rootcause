@@ -22,7 +22,7 @@ pub enum EventEffect {
 impl EventEffect {
     /// Evaluate this [`EventEffect`] as a potential root cause candidate for
     /// [`crate::RootCauseTracker`].
-    pub fn candidate(&self) -> Option<Vec<ScoredEvidence>> {
+    pub fn evaluate(&self) -> Option<Vec<ScoredEvidence>> {
         match self {
             Self::Ignored => None,
             Self::TopologyChanged { event } => self.on_topology(event),
