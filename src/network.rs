@@ -91,30 +91,29 @@ impl Network {
 
     /// Check if a [`Node`] can reach another [`Node`].
     pub fn can_reach(&self, node: &Rc<Node>, target: &Rc<Node>) -> bool {
-        let mut visited = HashSet::new();
-        self.traverse(node, target, &mut visited)
+        self.traverse(node, target)
     }
 
-    /// Recursively traverse the Network using depth-first search, returning
+    /// Iteratively traverse the Network using depth-first search, returning
     /// `true` if the target [`Node`] is reachable from the given [`Node`].
-    fn traverse(
-        &self,
-        node: &Rc<Node>,
-        target: &Rc<Node>,
-        visited: &mut HashSet<Rc<Node>>,
-    ) -> bool {
-        if node == target {
-            return true;
-        }
+    fn traverse(&self, node: &Rc<Node>, target: &Rc<Node>) -> bool {
+        let mut visited = HashSet::new();
+        let mut stack = Vec::new();
 
-        if !visited.insert(node.clone()) {
-            return false;
-        }
+        stack.push(node);
 
-        if let Some(neighbors) = self.neighbors(node) {
-            for neighbor in neighbors {
-                if self.traverse(neighbor, target, visited) {
-                    return true;
+        while let Some(node) = stack.pop() {
+            if node == target {
+                return true;
+            }
+
+            if !visited.insert(node) {
+                continue;
+            }
+
+            if let Some(neighbors) = self.neighbors(node) {
+                for neighbor in neighbors {
+                    stack.push(neighbor)
                 }
             }
         }
